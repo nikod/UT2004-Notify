@@ -3,6 +3,7 @@
 import pynotify
 import subprocess
 import threading
+import time
 
 def check(server, port):
 	# Use quaqut to query the server for players.
@@ -30,10 +31,34 @@ def read(output):
 					A.append(N[0])
 					skip(output, 1)
 				else:
-					break
+					return A
 			else:
-				break
+				return A
 
+def analysis (server, port):
+	A = read(check(server, port))
+	while True:
+		time.sleep(30)
+		B = read(check(server, port))
+		if A != B:
+			Old = compare(A, B)
+			New = compare(B, A)
+			if len(Old) != 0:
+				print Old				
+			if len(New) != 0:
+				print New
+			A = B		
+
+def compare(A, B):
+	C = []
+	for i in range(len(A)):
+		Found = False
+		for j in range(len(B)):
+			if A[i] == B[j]:
+				Found = True
+		if not Found:
+			C.append(A[i])
+	return C
 	
 if __name__ == "__main__":
-	read(check("200.123.156.25","5555"))
+	analysis("200.123.156.25","5555")
