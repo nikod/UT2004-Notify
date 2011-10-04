@@ -57,13 +57,14 @@ def analysis (server, port):
 	A = read(check(server, port))
 	while True:
 		time.sleep(10)
-		B = read(check(server, port))
-		if A != None and B != None:
-			if A[0] != B[0]:
-				Old = compare(A[0], B[0])
-				New = compare(B[0], A[0])
-				notify(New, Old, B[1], B[2], len(B[0]))
-				A = B		
+		if get_process() == None:
+			B = read(check(server, port))
+			if A != None and B != None:
+				if A[0] != B[0]:
+					Old = compare(A[0], B[0])
+					New = compare(B[0], A[0])
+					notify(New, Old, B[1], B[2], len(B[0]))
+					A = B		
 
 def compare(A, B):
 	C = []
@@ -123,6 +124,20 @@ def read_file():
 			break
 	conf.close()
 	return B
+	
+def get_process():
+	pids = []
+	process = None
+	for i in os.listdir('/proc'):
+		if i.isdigit():
+			pids.append(i)
+
+	for pid in pids:
+		proc = open(os.path.join('/proc', pid, 'cmdline'), 'r').readline(8)
+		if proc == "./ut2004":
+			process = pid
+	
+	return process
 	
 if __name__ == "__main__":
 	conf = read_file()
