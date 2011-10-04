@@ -83,20 +83,33 @@ def notify(New, Old, Server_Name, Game_Type, Total_Players):
 	pynotify.init("UT2004 Notify")
 	Notify = ""
 	if len(New) != 0:
-		Notify += "New Players: "
+		Notify += "New Player/s: "
 		for i in range(len(New)):
 			Notify += "%s " % New[i]
 		Notify += "\n\n"
 	if len(Old) != 0:
-		Notify += "Players who left: "
+		Notify += "Player/s who left: "
 		for i in range(len(Old)):
 			Notify += "%s " % Old[i]
 		Notify += "\n\n"
 	Notify += "Game Type: %s\n\n" % Game_Type 
-	Notify += "Total Players: %s" % Total_Players
+	Notify += "Total Player/s: %s" % Total_Players
 	n = pynotify.Notification(Server_Name.decode("iso8859-1"), Notify.decode("iso8859-1") , "%s/Help/Unreal.ico" % UT2004Path)
+	n.set_timeout(10000)
 	n.show()
-	
+	try:
+		import pygame
+		def play_sound():
+			pygame.init()
+			pygame.mixer.music.set_volume(0.05)
+			pygame.mixer.music.load("Sound.wav")
+			pygame.mixer.music.play()
+			while pygame.mixer.music.get_busy():
+				pass	
+		threading.Thread(target = play_sound()).start()
+	except:
+		pass
+		
 def read_file():
 	conf = open('Servers', "r")
 	A = []
