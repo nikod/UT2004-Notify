@@ -31,7 +31,11 @@ def read(output):
 	output.stdout.readline(12)
 	Game_Type = output.stdout.readline()
 	
-	skip(output,7)
+	#Goto "Player Information"
+	while True:
+		if output.stdout.readline() == "***** Players Information *****\n":
+			break
+			
 	# If the server is empty dont do anything.
 	if output.stdout.readline() == "No information to display\n":
 		return
@@ -54,11 +58,12 @@ def analysis (server, port):
 	while True:
 		time.sleep(10)
 		B = read(check(server, port))
-		if A[0] != B[0]:
-			Old = compare(A[0], B[0])
-			New = compare(B[0], A[0])
-			notify(New, Old, B[1], B[2], len(B[0]))
-			A = B		
+		if A != None and B != None:
+			if A[0] != B[0]:
+				Old = compare(A[0], B[0])
+				New = compare(B[0], A[0])
+				notify(New, Old, B[1], B[2], len(B[0]))
+				A = B		
 
 def compare(A, B):
 	C = []
@@ -72,8 +77,7 @@ def compare(A, B):
 				C.append(A[i])
 		return C
 	else:
-		return A
-		
+		return A		
 	
 def notify(New, Old, Server_Name, Game_Type, Total_Players):
 	pynotify.init("UT2004 Notify")
@@ -93,5 +97,21 @@ def notify(New, Old, Server_Name, Game_Type, Total_Players):
 	n = pynotify.Notification(Server_Name.decode("iso8859-1"), Notify.decode("iso8859-1") , "%s/Help/Unreal.ico" % UT2004Path)
 	n.show()
 	
+def read_file():
+	conf = open('Servers', "r")
+	A = []
+	B = []
+	while True:
+		A = conf.readline().rsplit(":")
+		if A[0] != "":
+			B.append(A)
+			B[-1][-1] = B[-1][-1].strip()
+		else:
+			break
+	conf.close()
+	return B
+	
 if __name__ == "__main__":
-	analysis("200.123.156.25","5555")
+	conf = read_file()
+	for i in range(len(conf)):
+		threading.Thread(target = analysis, args = (conf[i][0],conf[i][1])).start()
